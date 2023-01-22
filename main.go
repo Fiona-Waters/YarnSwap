@@ -4,6 +4,7 @@ import (
 	"context"
 	firebase "firebase.google.com/go/v4"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// listing represents data about a YarnSwap listing
+// Listing represents data about a YarnSwap listing
 type Listing struct {
 	ID           string `json:"id"`
 	Brand        string `json:"brand"`
@@ -59,10 +60,16 @@ func main() {
 	initialiseFirebaseApp()
 
 	router := gin.Default()
+
 	router.GET("/listings", getListings)
 	router.GET("/listings/:id", getListingById)
 	router.POST("/listings", addListing)
 
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowCredentials = true
+	config.AddAllowHeaders("authorization")
+	router.Use(cors.New(config))
 	router.Run("localhost:8080")
 }
 
