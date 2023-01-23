@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/db"
 	"fmt"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 // Listing represents data about a YarnSwap listing
@@ -28,15 +28,39 @@ var listings = []Listing{
 	{ID: "3", Brand: "Drops", Colourway: "Marine Blue", Weight: "Aran", FibreContent: "50% Cotton, 50% Wool"},
 }
 
-// function to retrieve listings
+// function to retrieve listings from firebase realtime database
 func getListings(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, listings)
+	ctx, client := initialiseFirebaseApp()
+
+	//Create Ref for listings
+	ref := client.NewRef("listings")
+	//retrieve the listings in order of the keys
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//create an array the same length as the number of results
+	data := make([]Listing, len(results))
+
+	//loop over the results and individually marshal into Listing struct
+	for i, r := range results {
+		var l Listing
+		if err := r.Unmarshal(&l); err != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		//add new struct to array
+		data[i] = l
+	}
+
+	log.Default().Println("data = ", data)
+
+	c.IndentedJSON(http.StatusOK, data)
 }
 
 //function to retrieve listing by id
 func getListingById(c *gin.Context) {
 	id := c.Param("id")
-
+	//loop over listings to find one with requested id
 	for _, a := range listings {
 		if a.ID == id {
 			c.IndentedJSON(http.StatusOK, a)
@@ -60,23 +84,19 @@ func main() {
 	initialiseFirebaseApp()
 
 	router := gin.Default()
-
+	router.Use(cors.Default())
 	router.GET("/listings", getListings)
 	router.GET("/listings/:id", getListingById)
 	router.POST("/listings", addListing)
 
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	config.AllowCredentials = true
-	config.AddAllowHeaders("authorization")
-	router.Use(cors.New(config))
 	router.Run("localhost:8080")
+
 }
 
 // function initialising firebase app and database and posting 2 listings.
-func initialiseFirebaseApp() *firebase.App {
+func initialiseFirebaseApp() (context.Context, *db.Client) {
 	ctx := context.Background()
-	//var nilMap map[string]interface{}
+
 	conf := &firebase.Config{
 		AuthOverride: nil,
 		DatabaseURL:  "https://yarnswap-52dbd-default-rtdb.europe-west1.firebasedatabase.app",
@@ -101,14 +121,5 @@ func initialiseFirebaseApp() *firebase.App {
 	}
 	fmt.Println(data)
 
-	listingsRef := ref.Child("userListings")
-	err = listingsRef.Set(ctx, map[string]*Listing{
-		"1": {Brand: "Green Elephant Yarn", Colourway: "Turquoise", Weight: "DK", FibreContent: "100% Wool"},
-		"2": {Brand: "Malabrigo", Colourway: "Night Sky", Weight: "fingering", FibreContent: "100% Alpaca"},
-	})
-	if err != nil {
-		log.Fatalln("Error setting value", err)
-	}
-
-	return app
+	return ctx, client
 }
