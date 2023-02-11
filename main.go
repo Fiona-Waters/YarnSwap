@@ -89,7 +89,7 @@ func main() {
 	router.GET("/listings/:id", getListingById)
 	router.POST("/listings", addListing)
 
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 
 }
 
