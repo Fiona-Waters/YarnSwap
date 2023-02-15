@@ -1,9 +1,10 @@
-module example/YarnSwap
+module fionawaters/YarnSwap
 
 go 1.18
 
 require (
 	firebase.google.com/go/v4 v4.10.0
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.2
 	google.golang.org/api v0.96.0
 )
@@ -15,7 +16,6 @@ require (
 	cloud.google.com/go/iam v0.3.0 // indirect
 	cloud.google.com/go/storage v1.26.0 // indirect
 	github.com/MicahParks/keyfunc v1.5.1 // indirect
-	github.com/gin-contrib/cors v1.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fionawaters/YarnSwap/models"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/db"
 	"fmt"
@@ -12,21 +13,12 @@ import (
 	"net/http"
 )
 
-// Listing represents data about a YarnSwap listing
-type Listing struct {
-	ID           string `json:"id"`
-	Brand        string `json:"brand"`
-	Colourway    string `json:"colourway"`
-	Weight       string `json:"weight"`
-	FibreContent string `json:"fibreContent"`
-}
-
 // listings to seed the database
-var listings = []Listing{
-	{ID: "1", Brand: "Green Elephant Yarn", Colourway: "Turquoise", Weight: "DK", FibreContent: "100% Wool"},
-	{ID: "2", Brand: "Malabrigo", Colourway: "Night Sky", Weight: "fingering", FibreContent: "100% Alpaca"},
-	{ID: "3", Brand: "Drops", Colourway: "Marine Blue", Weight: "Aran", FibreContent: "50% Cotton, 50% Wool"},
-}
+// var listings = []models.Listing{
+//{ID: "1", Brand: "Green Elephant Yarn", Colourway: "Turquoise", Weight: "DK", FibreContent: "100% Wool"},
+//{ID: "2", Brand: "Malabrigo", Colourway: "Night Sky", Weight: "fingering", FibreContent: "100% Alpaca"},
+//{ID: "3", Brand: "Drops", Colourway: "Marine Blue", Weight: "Aran", FibreContent: "50% Cotton, 50% Wool"},
+//}
 
 // function to retrieve listings from firebase realtime database
 func getListings(c *gin.Context) {
@@ -40,11 +32,11 @@ func getListings(c *gin.Context) {
 		log.Fatalln("Error querying database:", err)
 	}
 	//create an array the same length as the number of results
-	data := make([]Listing, len(results))
+	data := make([]models.Listing, len(results))
 
 	//loop over the results and individually marshal into Listing struct
 	for i, r := range results {
-		var l Listing
+		var l models.Listing
 		if err := r.Unmarshal(&l); err != nil {
 			log.Fatalln("Error unmarshaling result:", err)
 		}
@@ -71,12 +63,20 @@ func getListingById(c *gin.Context) {
 }
 
 // function to add a listing
-func addListing(c *gin.Context) {
-	var newListing Listing
+func addListing(c *gin.Context, listing *models.Listing) {
+	ctx, client := initialiseFirebaseApp()
+	ref := client.NewRef("https://console.firebase.google.com/project/yarnswap-52dbd/database/yarnswap-52dbd-default-rtdb/data/~2F")
+	listingRef := ref.Child("listing")
+
+	err := listingRef.Set(ctx, listing)
+	if err != nil {
+		log.Fatalln("Error setting value:", err)
+	}
+	var newListing models.Listing
 	if err := c.BindJSON(&newListing); err != nil {
 		return
 	}
-	listings = append(listings, newListing)
+	//listings = append(listings, newListing)
 	c.IndentedJSON(http.StatusCreated, newListing)
 }
 
