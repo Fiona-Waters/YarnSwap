@@ -5,22 +5,22 @@ import "time"
 // Listing represents data about a YarnSwap listing
 
 type Listing struct {
-	ID             string         `json:"id"`
-	UserId         string         `json:"userId"`
+	ID string `json:"id"`
+	//UserId         string         `json:"userId"`
 	Brand          *Brand         `json:"brand"`
 	Colourway      string         `json:"colourway"`
-	Meterage       string         `json:"meterage"`
-	Weight         *Weight        `json:"settings"`
+	Meterage       int            `json:"meterage"`
+	Weight         *Weight        `json:"weight"`
 	FibreContent   *FibreContent  `json:"fibreContent"`
 	UnitWeight     int            `json:"unitWeight"`
-	DyeLot         string         `json:"dyeLot"`
+	DyeLot         string         `json:"dyeLot,omitempty"`
 	Swappable      bool           `json:"swappable"`
-	Cost           float64        `json:"cost"`
+	Cost           float64        `json:"cost,omitempty"`
 	OriginalCount  int            `json:"originalCount"`
 	RemainingCount int            `json:"remainingCount"`
 	Timestamp      time.Time      `json:"timestamp"`
 	Image          *listingImage  `json:"image"`
-	Status         *listingStatus `json:"status"`
+	Status         *ListingStatus `json:"status"`
 }
 
 type Weight struct {
@@ -48,7 +48,7 @@ type listingImage struct {
 	ImageId string `json:"imageId"`
 }
 
-type listingStatus struct {
+type ListingStatus struct {
 	StatusId   string `json:"statusId"`
 	StatusName string `json:"statusName"`
 	Enabled    bool   `json:"enabled"`

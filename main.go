@@ -1,14 +1,10 @@
 package main
 
 import (
-	"context"
+	controllers "fionawaters/YarnSwap/controllers"
 	"fionawaters/YarnSwap/models"
-	firebase "firebase.google.com/go/v4"
-	"firebase.google.com/go/v4/db"
-	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/api/option"
 	"log"
 	"net/http"
 )
@@ -22,7 +18,7 @@ import (
 
 // function to retrieve listings from firebase realtime database
 func getListings(c *gin.Context) {
-	ctx, client := initialiseFirebaseApp()
+	ctx, client := controllers.InitialiseFirebaseApp()
 
 	//Create Ref for listings
 	ref := client.NewRef("listings")
@@ -50,76 +46,57 @@ func getListings(c *gin.Context) {
 }
 
 //function to retrieve listing by id
-func getListingById(c *gin.Context) {
-	id := c.Param("id")
-	//loop over listings to find one with requested id
-	for _, a := range listings {
-		if a.ID == id {
-			c.IndentedJSON(http.StatusOK, a)
-			return
-		}
-	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "listing not found"})
-}
+//func getListingById(c *gin.Context) {
+//	id := c.Param("id")
+//	//loop over listings to find one with requested id
+//	for _, a := range listings {
+//		if a.ID == id {
+//			c.IndentedJSON(http.StatusOK, a)
+//			return
+//		}
+//	}
+//	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "listing not found"})
+//}
 
 // function to add a listing
-func addListing(c *gin.Context, listing *models.Listing) {
-	ctx, client := initialiseFirebaseApp()
-	ref := client.NewRef("https://console.firebase.google.com/project/yarnswap-52dbd/database/yarnswap-52dbd-default-rtdb/data/~2F")
-	listingRef := ref.Child("listing")
+func addListing(c *gin.Context) {
+	log.Printf("HELLO")
+	ctx, client := controllers.InitialiseFirebaseApp()
+	ref := client.NewRef("listings")
 
-	err := listingRef.Set(ctx, listing)
-	if err != nil {
-		log.Fatalln("Error setting value:", err)
-	}
 	var newListing models.Listing
 	if err := c.BindJSON(&newListing); err != nil {
 		return
 	}
-	//listings = append(listings, newListing)
+	if newListing.Swappable == true {
+		newListing.Status = &models.ListingStatus{
+			StatusId:   "",
+			StatusName: "available",
+			Enabled:    true,
+			SortOrder:  0,
+		}
+	}
+	log.Printf("STATUS %v", newListing.Status.StatusName)
+	firebaseListingId, err := ref.Push(ctx, newListing)
+	log.Printf("newListing %v", newListing)
+	log.Printf("firebaseListingId %v", firebaseListingId)
+	if err != nil {
+		log.Fatalln("Error setting value:", err)
+	}
+
 	c.IndentedJSON(http.StatusCreated, newListing)
 }
 
 func main() {
-	initialiseFirebaseApp()
+	controllers.InitialiseFirebaseApp()
+	controllers.PopulateFirebase()
 
 	router := gin.Default()
 	router.Use(cors.Default())
 	router.GET("/listings", getListings)
-	router.GET("/listings/:id", getListingById)
+	// router.GET("/listings/:id", getListingById)
 	router.POST("/listings", addListing)
 
 	router.Run("0.0.0.0:8080")
 
-}
-
-// function initialising firebase app and database and posting 2 listings.
-func initialiseFirebaseApp() (context.Context, *db.Client) {
-	ctx := context.Background()
-
-	conf := &firebase.Config{
-		AuthOverride: nil,
-		DatabaseURL:  "https://yarnswap-52dbd-default-rtdb.europe-west1.firebasedatabase.app",
-	}
-
-	opt := option.WithCredentialsFile("yarnswap-firebase.json")
-
-	app, err := firebase.NewApp(ctx, conf, opt)
-	if err != nil {
-		log.Fatalf("error initializing app: %v\n", err)
-	}
-
-	client, err := app.Database(ctx)
-	if err != nil {
-		log.Fatalln("Error initialising database client:", err)
-	}
-
-	ref := client.NewRef("listings")
-	var data map[string]interface{}
-	if err := ref.Get(ctx, &data); err != nil {
-		log.Fatalln("Error reading data from database:", err)
-	}
-	fmt.Println(data)
-
-	return ctx, client
 }
