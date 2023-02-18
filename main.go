@@ -45,6 +45,87 @@ func getListings(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, data)
 }
 
+func getBrands(c *gin.Context) {
+	ctx, client := controllers.InitialiseFirebaseApp()
+
+	//Create Ref for brands
+	ref := client.NewRef("brands")
+	//retrieve the listings in order of the keys
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//create an array the same length as the number of results
+	data := make([]models.Brand, len(results))
+
+	//loop over the results and individually marshal into Listing struct
+	for i, r := range results {
+		var b models.Brand
+		if e := r.Unmarshal(&b); e != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		//add new struct to array
+		data[i] = b
+	}
+	log.Default().Println("data = ", data)
+
+	c.IndentedJSON(http.StatusOK, data)
+}
+
+func getWeights(c *gin.Context) {
+	ctx, client := controllers.InitialiseFirebaseApp()
+
+	//Create Ref for weights
+	ref := client.NewRef("weights")
+	//retrieve the listings in order of the keys
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//create an array the same length as the number of results
+	data := make([]models.Weight, len(results))
+
+	//loop over the results and individually marshal into Listing struct
+	for i, r := range results {
+		var w models.Weight
+		if e := r.Unmarshal(&w); e != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		//add new struct to array
+		data[i] = w
+	}
+	log.Default().Println("data = ", data)
+
+	c.IndentedJSON(http.StatusOK, data)
+}
+
+func getFibreContents(c *gin.Context) {
+	ctx, client := controllers.InitialiseFirebaseApp()
+
+	//Create Ref for fibre contents
+	ref := client.NewRef("fibres")
+	//retrieve the listings in order of the keys
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//create an array the same length as the number of results
+	data := make([]models.FibreContent, len(results))
+
+	//loop over the results and individually marshal into Listing struct
+	for i, r := range results {
+		var f models.FibreContent
+		if e := r.Unmarshal(&f); e != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		//add new struct to array
+		data[i] = f
+	}
+	log.Default().Println("data = ", data)
+
+	c.IndentedJSON(http.StatusOK, data)
+}
+
 //function to retrieve listing by id
 //func getListingById(c *gin.Context) {
 //	id := c.Param("id")
@@ -68,7 +149,7 @@ func addListing(c *gin.Context) {
 	if err := c.BindJSON(&newListing); err != nil {
 		return
 	}
-	if newListing.Swappable == true {
+	if newListing.Swappable == "1" {
 		newListing.Status = &models.ListingStatus{
 			StatusId:   "",
 			StatusName: "available",
@@ -76,14 +157,10 @@ func addListing(c *gin.Context) {
 			SortOrder:  0,
 		}
 	}
-	log.Printf("STATUS %v", newListing.Status.StatusName)
-	firebaseListingId, err := ref.Push(ctx, newListing)
-	log.Printf("newListing %v", newListing)
-	log.Printf("firebaseListingId %v", firebaseListingId)
+	_, err := ref.Push(ctx, newListing)
 	if err != nil {
 		log.Fatalln("Error setting value:", err)
 	}
-
 	c.IndentedJSON(http.StatusCreated, newListing)
 }
 
@@ -96,6 +173,9 @@ func main() {
 	router.GET("/listings", getListings)
 	// router.GET("/listings/:id", getListingById)
 	router.POST("/listings", addListing)
+	router.GET("/brands", getBrands)
+	router.GET("/weights", getWeights)
+	router.GET("/fibres", getFibreContents)
 
 	router.Run("0.0.0.0:8080")
 

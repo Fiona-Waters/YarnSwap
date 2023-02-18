@@ -1,22 +1,24 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // Listing represents data about a YarnSwap listing
 
 type Listing struct {
-	ID string `json:"id"`
-	//UserId         string         `json:"userId"`
-	Brand          *Brand         `json:"brand"`
+	ID             string         `json:"id"`
+	UserId         string         `json:"userId"`
+	Brand          string         `json:"brand"`
 	Colourway      string         `json:"colourway"`
-	Meterage       int            `json:"meterage"`
-	Weight         *Weight        `json:"weight"`
-	FibreContent   *FibreContent  `json:"fibreContent"`
-	UnitWeight     int            `json:"unitWeight"`
+	Meterage       string         `json:"meterage"`
+	Weight         string         `json:"weight"`
+	FibreContent   string         `json:"fibreContent"`
+	UnitWeight     string         `json:"unitWeight"`
 	DyeLot         string         `json:"dyeLot,omitempty"`
-	Swappable      bool           `json:"swappable"`
+	Swappable      string         `json:"swappable"`
 	Cost           float64        `json:"cost,omitempty"`
-	OriginalCount  int            `json:"originalCount"`
+	OriginalCount  string         `json:"originalCount"`
 	RemainingCount int            `json:"remainingCount"`
 	Timestamp      time.Time      `json:"timestamp"`
 	Image          *listingImage  `json:"image"`
