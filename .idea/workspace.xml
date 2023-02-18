@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ea790109-6893-4233-8dfb-156508bec11c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/YarnSwapBE.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/YarnSwapBE.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/listing.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/listing.go" afterDir="false" />
     </list>
@@ -45,7 +42,7 @@
     "configurable.GoLibrariesConfigurable.is.expanded": "true",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/home/fionawaters/Documents/cloud-resource-operator",
+    "last_opened_file_path": "/home/fionawaters/Documents/fiona/YarnSwap/YarnSwapBE",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "settings.editor.selected.configurable": "com.goide.configuration.GoLibrariesConfigurableProvider"

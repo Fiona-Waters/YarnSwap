@@ -33,6 +33,7 @@ func getListings(c *gin.Context) {
 	//loop over the results and individually marshal into Listing struct
 	for i, r := range results {
 		var l models.Listing
+
 		if err := r.Unmarshal(&l); err != nil {
 			log.Fatalln("Error unmarshaling result:", err)
 		}
@@ -149,7 +150,7 @@ func addListing(c *gin.Context) {
 	if err := c.BindJSON(&newListing); err != nil {
 		return
 	}
-	if newListing.Swappable == "1" {
+	if newListing.Swappable == true {
 		newListing.Status = &models.ListingStatus{
 			StatusId:   "",
 			StatusName: "available",

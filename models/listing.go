@@ -11,14 +11,14 @@ type Listing struct {
 	UserId         string         `json:"userId"`
 	Brand          string         `json:"brand"`
 	Colourway      string         `json:"colourway"`
-	Meterage       string         `json:"meterage"`
+	Meterage       int            `json:"meterage"`
 	Weight         string         `json:"weight"`
 	FibreContent   string         `json:"fibreContent"`
-	UnitWeight     string         `json:"unitWeight"`
+	UnitWeight     int            `json:"unitWeight"`
 	DyeLot         string         `json:"dyeLot,omitempty"`
-	Swappable      string         `json:"swappable"`
+	Swappable      bool           `json:"swappable"`
 	Cost           float64        `json:"cost,omitempty"`
-	OriginalCount  string         `json:"originalCount"`
+	OriginalCount  int            `json:"originalCount"`
 	RemainingCount int            `json:"remainingCount"`
 	Timestamp      time.Time      `json:"timestamp"`
 	Image          *listingImage  `json:"image"`
