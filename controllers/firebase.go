@@ -5,7 +5,6 @@ import (
 	"fionawaters/YarnSwap/models"
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/db"
-	"fmt"
 	"google.golang.org/api/option"
 	"log"
 )
@@ -275,7 +274,7 @@ func InitialiseFirebaseApp() (context.Context, *db.Client) {
 	if err := ref.Get(ctx, &data); err != nil {
 		log.Fatalln("Error reading data from database:", err)
 	}
-	fmt.Println(data)
+	//fmt.Println(data)
 
 	return ctx, client
 }

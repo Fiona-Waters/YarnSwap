@@ -41,7 +41,7 @@ func getListings(c *gin.Context) {
 		data[i] = l
 	}
 
-	log.Default().Println("data = ", data)
+	//log.Default().Println("data = ", data)
 
 	c.IndentedJSON(http.StatusOK, data)
 }
@@ -68,7 +68,7 @@ func getBrands(c *gin.Context) {
 		//add new struct to array
 		data[i] = b
 	}
-	log.Default().Println("data = ", data)
+	//log.Default().Println("data = ", data)
 
 	c.IndentedJSON(http.StatusOK, data)
 }
@@ -95,7 +95,7 @@ func getWeights(c *gin.Context) {
 		//add new struct to array
 		data[i] = w
 	}
-	log.Default().Println("data = ", data)
+	//	log.Default().Println("data = ", data)
 
 	c.IndentedJSON(http.StatusOK, data)
 }
@@ -122,7 +122,7 @@ func getFibreContents(c *gin.Context) {
 		//add new struct to array
 		data[i] = f
 	}
-	log.Default().Println("data = ", data)
+	//	log.Default().Println("data = ", data)
 
 	c.IndentedJSON(http.StatusOK, data)
 }
@@ -142,7 +142,6 @@ func getFibreContents(c *gin.Context) {
 
 // function to add a listing
 func addListing(c *gin.Context) {
-	log.Printf("HELLO")
 	ctx, client := controllers.InitialiseFirebaseApp()
 	ref := client.NewRef("listings")
 
@@ -153,7 +152,7 @@ func addListing(c *gin.Context) {
 	if newListing.Swappable == true {
 		newListing.Status = &models.ListingStatus{
 			StatusId:   "",
-			StatusName: "available",
+			StatusName: "Available",
 			Enabled:    true,
 			SortOrder:  0,
 		}

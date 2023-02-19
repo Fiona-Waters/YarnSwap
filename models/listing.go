@@ -21,7 +21,7 @@ type Listing struct {
 	OriginalCount  int            `json:"originalCount"`
 	RemainingCount int            `json:"remainingCount"`
 	Timestamp      time.Time      `json:"timestamp"`
-	Image          *listingImage  `json:"image"`
+	ImageUrl       string         `json:"image"`
 	Status         *ListingStatus `json:"status"`
 }
 
@@ -44,10 +44,6 @@ type Brand struct {
 	BrandName string `json:"brandName"`
 	Enabled   bool   `json:"enabled"`
 	SortOrder int    `json:"sortOrder"`
-}
-
-type listingImage struct {
-	ImageId string `json:"imageId"`
 }
 
 type ListingStatus struct {
