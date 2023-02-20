@@ -37,6 +37,7 @@ func getListings(c *gin.Context) {
 		if err := r.Unmarshal(&l); err != nil {
 			log.Fatalln("Error unmarshaling result:", err)
 		}
+		l.ID = r.Key()
 		//add new struct to array
 		data[i] = l
 	}
@@ -127,19 +128,6 @@ func getFibreContents(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, data)
 }
 
-//function to retrieve listing by id
-//func getListingById(c *gin.Context) {
-//	id := c.Param("id")
-//	//loop over listings to find one with requested id
-//	for _, a := range listings {
-//		if a.ID == id {
-//			c.IndentedJSON(http.StatusOK, a)
-//			return
-//		}
-//	}
-//	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "listing not found"})
-//}
-
 // function to add a listing
 func addListing(c *gin.Context) {
 	ctx, client := controllers.InitialiseFirebaseApp()
@@ -150,17 +138,23 @@ func addListing(c *gin.Context) {
 		return
 	}
 	if newListing.Swappable == true {
-		newListing.Status = &models.ListingStatus{
-			StatusId:   "",
-			StatusName: "Available",
-			Enabled:    true,
-			SortOrder:  0,
+		newListing.Status = "Available"
+	}
+
+	// if the listing has an ID (i.e. it already exists) update it
+	if newListing.ID != "" {
+		err := ref.Update(ctx, map[string]interface{}{newListing.ID: newListing})
+		if err != nil {
+			log.Fatalln("Error setting value:", err)
+		}
+	} else {
+		// create a new listing
+		_, err := ref.Push(ctx, newListing)
+		if err != nil {
+			log.Fatalln("Error setting value:", err)
 		}
 	}
-	_, err := ref.Push(ctx, newListing)
-	if err != nil {
-		log.Fatalln("Error setting value:", err)
-	}
+
 	c.IndentedJSON(http.StatusCreated, newListing)
 }
 
@@ -171,12 +165,10 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
 	router.GET("/listings", getListings)
-	// router.GET("/listings/:id", getListingById)
 	router.POST("/listings", addListing)
 	router.GET("/brands", getBrands)
 	router.GET("/weights", getWeights)
 	router.GET("/fibres", getFibreContents)
-
 	router.Run("0.0.0.0:8080")
 
 }

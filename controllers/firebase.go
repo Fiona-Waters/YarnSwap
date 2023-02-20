@@ -221,34 +221,34 @@ var Fibres = []models.FibreContent{
 	},
 }
 
-var ListingStatuses = []models.ListingStatus{
-	{
-		StatusId:   "1",
-		StatusName: "Available",
-		Enabled:    true,
-		SortOrder:  1,
-	},
-	{
-		StatusId:   "2",
-		StatusName: "Unavailable",
-		Enabled:    true,
-		SortOrder:  2,
-	},
-	{
-		StatusId:   "3",
-		StatusName: "Inactive",
-		Enabled:    true,
-		SortOrder:  3,
-	},
-	{
-		StatusId:   "4",
-		StatusName: "Archived",
-		Enabled:    true,
-		SortOrder:  4,
-	},
-}
+//var ListingStatuses = []models.ListingStatus{
+//	{
+//		StatusId:   "1",
+//		StatusName: "Available",
+//		Enabled:    true,
+//		SortOrder:  1,
+//	},
+//	{
+//		StatusId:   "2",
+//		StatusName: "Unavailable",
+//		Enabled:    true,
+//		SortOrder:  2,
+//	},
+//	{
+//		StatusId:   "3",
+//		StatusName: "Inactive",
+//		Enabled:    true,
+//		SortOrder:  3,
+//	},
+//	{
+//		StatusId:   "4",
+//		StatusName: "Archived",
+//		Enabled:    true,
+//		SortOrder:  4,
+//	},
+//}
 
-// function initialising firebase app and database and posting 2 listings.
+// InitialiseFirebaseApp function initialising firebase app and database and posting 2 listings.
 func InitialiseFirebaseApp() (context.Context, *db.Client) {
 	ctx := context.Background()
 
@@ -318,22 +318,22 @@ func addFibresToFirebase() {
 	}
 }
 
-func addListingStatusesToFirebase() {
-	ctx, client := InitialiseFirebaseApp()
-	ref := client.NewRef("listing-status")
-
-	for _, v := range ListingStatuses {
-		statusRef := ref.Child(v.StatusId)
-		err := statusRef.Set(ctx, v)
-		if err != nil {
-			log.Fatalln("Error setting value:", err)
-		}
-	}
-}
+//func addListingStatusesToFirebase() {
+//	ctx, client := InitialiseFirebaseApp()
+//	ref := client.NewRef("listing-status")
+//
+//	for _, v := range ListingStatuses {
+//		statusRef := ref.Child(v.StatusId)
+//		err := statusRef.Set(ctx, v)
+//		if err != nil {
+//			log.Fatalln("Error setting value:", err)
+//		}
+//	}
+//}
 
 func PopulateFirebase() {
 	addBrandsToFirebase()
 	addWeightsToFirebase()
 	addFibresToFirebase()
-	addListingStatusesToFirebase()
+	//	addListingStatusesToFirebase()
 }

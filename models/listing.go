@@ -7,22 +7,23 @@ import (
 // Listing represents data about a YarnSwap listing
 
 type Listing struct {
-	ID             string         `json:"id"`
-	UserId         string         `json:"userId"`
-	Brand          string         `json:"brand"`
-	Colourway      string         `json:"colourway"`
-	Meterage       int            `json:"meterage"`
-	Weight         string         `json:"weight"`
-	FibreContent   string         `json:"fibreContent"`
-	UnitWeight     int            `json:"unitWeight"`
-	DyeLot         string         `json:"dyeLot,omitempty"`
-	Swappable      bool           `json:"swappable"`
-	Cost           float64        `json:"cost,omitempty"`
-	OriginalCount  int            `json:"originalCount"`
-	RemainingCount int            `json:"remainingCount"`
-	Timestamp      time.Time      `json:"timestamp"`
-	ImageUrl       string         `json:"image"`
-	Status         *ListingStatus `json:"status"`
+	ID             string    `json:"id,omitempty"`
+	UserId         string    `json:"userId"`
+	Brand          string    `json:"brand"`
+	Colourway      string    `json:"colourway"`
+	Meterage       int       `json:"meterage"`
+	Weight         string    `json:"weight"`
+	FibreContent   string    `json:"fibreContent"`
+	UnitWeight     int       `json:"unitWeight"`
+	DyeLot         string    `json:"dyeLot,omitempty"`
+	Swappable      bool      `json:"swappable"`
+	Cost           float64   `json:"cost,omitempty"`
+	OriginalCount  int       `json:"originalCount"`
+	RemainingCount int       `json:"remainingCount"`
+	Timestamp      time.Time `json:"timestamp"`
+	ImageUrl       string    `json:"image"`
+	Status         string    `json:"status"`
+	//	Status         *ListingStatus `json:"status"`
 }
 
 type Weight struct {
@@ -46,9 +47,9 @@ type Brand struct {
 	SortOrder int    `json:"sortOrder"`
 }
 
-type ListingStatus struct {
-	StatusId   string `json:"statusId"`
-	StatusName string `json:"statusName"`
-	Enabled    bool   `json:"enabled"`
-	SortOrder  int    `json:"sortOrder"`
-}
+//type ListingStatus struct {
+//	StatusId   string `json:"statusId"`
+//	StatusName string `json:"statusName"`
+//	Enabled    bool   `json:"enabled"`
+//	SortOrder  int    `json:"sortOrder"`
+//}
