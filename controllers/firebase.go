@@ -249,7 +249,7 @@ var Fibres = []models.FibreContent{
 //}
 
 // InitialiseFirebaseApp function initialising firebase app and database and posting 2 listings.
-func InitialiseFirebaseApp() (context.Context, *db.Client) {
+func InitialiseFirebaseApp() (context.Context, *db.Client, *firebase.App) {
 	ctx := context.Background()
 
 	conf := &firebase.Config{
@@ -276,11 +276,11 @@ func InitialiseFirebaseApp() (context.Context, *db.Client) {
 	}
 	//fmt.Println(data)
 
-	return ctx, client
+	return ctx, client, app
 }
 
 func addBrandsToFirebase() {
-	ctx, client := InitialiseFirebaseApp()
+	ctx, client, _ := InitialiseFirebaseApp()
 	ref := client.NewRef("brands")
 
 	for _, v := range Brands {
@@ -293,7 +293,7 @@ func addBrandsToFirebase() {
 }
 
 func addWeightsToFirebase() {
-	ctx, client := InitialiseFirebaseApp()
+	ctx, client, _ := InitialiseFirebaseApp()
 	ref := client.NewRef("weights")
 
 	for _, v := range Weights {
@@ -306,7 +306,7 @@ func addWeightsToFirebase() {
 }
 
 func addFibresToFirebase() {
-	ctx, client := InitialiseFirebaseApp()
+	ctx, client, _ := InitialiseFirebaseApp()
 	ref := client.NewRef("fibres")
 
 	for _, v := range Fibres {

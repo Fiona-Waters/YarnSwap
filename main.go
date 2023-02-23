@@ -18,7 +18,7 @@ import (
 
 // function to retrieve listings from firebase realtime database
 func getListings(c *gin.Context) {
-	ctx, client := controllers.InitialiseFirebaseApp()
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
 	//Create Ref for listings
 	ref := client.NewRef("listings")
@@ -48,7 +48,7 @@ func getListings(c *gin.Context) {
 }
 
 func getBrands(c *gin.Context) {
-	ctx, client := controllers.InitialiseFirebaseApp()
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
 	//Create Ref for brands
 	ref := client.NewRef("brands")
@@ -75,7 +75,7 @@ func getBrands(c *gin.Context) {
 }
 
 func getWeights(c *gin.Context) {
-	ctx, client := controllers.InitialiseFirebaseApp()
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
 	//Create Ref for weights
 	ref := client.NewRef("weights")
@@ -102,7 +102,7 @@ func getWeights(c *gin.Context) {
 }
 
 func getFibreContents(c *gin.Context) {
-	ctx, client := controllers.InitialiseFirebaseApp()
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
 	//Create Ref for fibre contents
 	ref := client.NewRef("fibres")
@@ -130,7 +130,7 @@ func getFibreContents(c *gin.Context) {
 
 // function to add a listing
 func addListing(c *gin.Context) {
-	ctx, client := controllers.InitialiseFirebaseApp()
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
 	ref := client.NewRef("listings")
 
 	var newListing models.Listing
@@ -158,14 +158,39 @@ func addListing(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newListing)
 }
 
+func authMiddleware(c *gin.Context) {
+	ctx, _, app := controllers.InitialiseFirebaseApp()
+	client, err := app.Auth(ctx)
+	if err != nil {
+		log.Printf("error getting Auth client: %v\n", err)
+	}
+	idToken := c.Request.Header.Get("X-ID-TOKEN")
+	token, err := client.VerifyIDToken(ctx, idToken)
+	if err != nil {
+		log.Printf("error verifying ID token: %v\n", err)
+		c.AbortWithStatus(401)
+	}
+	if token != nil {
+		c.Next()
+	} else {
+		c.AbortWithStatus(401)
+		log.Printf("user not authorised: %v\n", err)
+	}
+}
+
 func main() {
 	controllers.InitialiseFirebaseApp()
 	controllers.PopulateFirebase()
 
 	router := gin.Default()
-	router.Use(cors.Default())
+	//router.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "X-ID-TOKEN")
+	router.Use(cors.New(corsConfig))
+
 	router.GET("/listings", getListings)
-	router.POST("/listings", addListing)
+	router.POST("/listings", authMiddleware, addListing)
 	router.GET("/brands", getBrands)
 	router.GET("/weights", getWeights)
 	router.GET("/fibres", getFibreContents)
