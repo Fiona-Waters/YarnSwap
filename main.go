@@ -194,6 +194,11 @@ func main() {
 	router.GET("/brands", getBrands)
 	router.GET("/weights", getWeights)
 	router.GET("/fibres", getFibreContents)
+	//router.POST("swaps", addSwap)
+	//router.GET("swaps", getSwaps)
 	router.Run("0.0.0.0:8080")
 
 }
+
+//TODO addSwap and getSwaps functions
+//TODO wishlist functions
