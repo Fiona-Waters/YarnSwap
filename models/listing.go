@@ -55,20 +55,26 @@ type Brand struct {
 //}
 
 type Swap struct {
-	SwapID        string      `json:"swapId"`
-	SwapperUserID string      `json:"swapperUserId"`
-	SwappeeUserID string      `json:"swappeeUserId"`
-	ListingID     string      `json:"ListingId"`
-	SwapStatus    *SwapStatus `json:"swapStatus"`
+	ID            string `json:"swapId"`
+	SwapperUserID string `json:"swapperUserId"`
+	SwappeeUserID string `json:"swappeeUserId"`
+	ListingID     string `json:"ListingId"`
+	SwapStatus    string `json:"swapStatus"`
 	// TODO SwapChat
 }
 
-type SwapStatus struct {
-	StatusId   string `json:"statusId"`
-	StatusName string `json:"statusName"`
-	Enabled    bool   `json:"enabled"`
-	SortOrder  int    `json:"sortOrder"`
+type SwapListing struct {
+	Swap    Swap
+	Listing Listing
 }
+
+//
+//type SwapStatus struct {
+//	StatusId   string `json:"statusId"`
+//	StatusName string `json:"statusName"`
+//	Enabled    bool   `json:"enabled"`
+//	SortOrder  int    `json:"sortOrder"`
+//}
 
 type Wishlist struct {
 	UserWishlist *[]Listing `json:"userWishlist"'`

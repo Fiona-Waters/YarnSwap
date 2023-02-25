@@ -47,6 +47,64 @@ func getListings(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, data)
 }
 
+func getSwaps(c *gin.Context) {
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
+
+	//Create Ref for swaps
+	ref := client.NewRef("swaps")
+	//retrieve the swaps in order of the keys
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//create an array the same length as the number of results
+	data := make([]models.SwapListing, len(results))
+
+	//loop over the results and individually marshal into Swap struct
+	for i, r := range results {
+		var s models.Swap
+
+		if err := r.Unmarshal(&s); err != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		s.ID = r.Key()
+		listing := getListingById(c, s.ListingID)
+		//add new struct to array
+		if listing.ID == s.ListingID {
+			swapListing := models.SwapListing{Swap: s, Listing: listing}
+			log.Printf("swapListing %v", swapListing)
+			data[i] = swapListing
+		}
+	}
+	log.Default().Println("data = ", data)
+	c.IndentedJSON(http.StatusOK, data)
+}
+
+//TODO create a func to get Listing by ID
+func getListingById(c *gin.Context, listingId string) models.Listing {
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
+
+	ref := client.NewRef("listings")
+	//retrieve the listings in order of the keys
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//create an array the same length as the number of results
+	data := make([]models.Listing, len(results))
+	var l models.Listing
+	//loop over the results and individually marshal into Listing struct
+	for i, r := range results {
+		//var l models.Listing
+		if err := r.Unmarshal(&l); err != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		data[i] = l
+	}
+	c.IndentedJSON(http.StatusOK, data)
+	return l
+}
+
 func getBrands(c *gin.Context) {
 	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
@@ -143,7 +201,9 @@ func addListing(c *gin.Context) {
 
 	// if the listing has an ID (i.e. it already exists) update it
 	if newListing.ID != "" {
-		err := ref.Update(ctx, map[string]interface{}{newListing.ID: newListing})
+		var id = newListing.ID
+		newListing.ID = ""
+		err := ref.Update(ctx, map[string]interface{}{id: newListing})
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
 		}
@@ -156,6 +216,35 @@ func addListing(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusCreated, newListing)
+}
+
+// function to add a swap
+func addSwap(c *gin.Context) {
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
+	ref := client.NewRef("swaps")
+	log.Println("hello")
+	var newSwap models.Swap
+	if err := c.BindJSON(&newSwap); err != nil {
+		log.Printf("error binding: %v\n", err)
+		return
+	}
+	log.Printf("newswap %v", newSwap)
+
+	// if the swap has an ID (i.e. it already exists) update it
+	//if newSwap.SwapID != "" {
+	//	err := ref.Update(ctx, map[string]interface{}{newSwap.SwapID: newSwap})
+	//	if err != nil {
+	//		log.Fatalln("Error setting value:", err)
+	//	}
+	//} else {
+	// create a new swap
+	_, err := ref.Push(ctx, newSwap)
+	if err != nil {
+		log.Fatalln("Error setting value:", err)
+	}
+	//}
+
+	c.IndentedJSON(http.StatusCreated, newSwap)
 }
 
 func authMiddleware(c *gin.Context) {
@@ -194,8 +283,8 @@ func main() {
 	router.GET("/brands", getBrands)
 	router.GET("/weights", getWeights)
 	router.GET("/fibres", getFibreContents)
-	//router.POST("swaps", addSwap)
-	//router.GET("swaps", getSwaps)
+	router.POST("/swaps", authMiddleware, addSwap)
+	router.GET("swaps", getSwaps)
 	router.Run("0.0.0.0:8080")
 
 }
