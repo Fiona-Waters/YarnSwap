@@ -63,14 +63,12 @@ func getSwaps(c *gin.Context) {
 	//loop over the results and individually marshal into Swap struct
 	for i, r := range results {
 		var s models.Swap
-
 		if err := r.Unmarshal(&s); err != nil {
 			log.Fatalln("Error unmarshaling result:", err)
 		}
 		s.ID = r.Key()
-		listing := getListingById(c, s.ListingID)
+		listing := getListingById(s.ListingID)
 		//add new struct to array
-
 		swapListing := models.SwapListing{Swap: s, Listing: listing}
 		data[i] = swapListing
 
@@ -79,8 +77,7 @@ func getSwaps(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, data)
 }
 
-//TODO create a func to get Listing by ID
-func getListingById(c *gin.Context, listingId string) models.Listing {
+func getListingById(listingId string) models.Listing {
 	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
 	ref := client.NewRef("listings")
@@ -180,9 +177,6 @@ func addListing(c *gin.Context) {
 	if err := c.BindJSON(&newListing); err != nil {
 		return
 	}
-	if newListing.Swappable == true {
-		newListing.Status = "Available"
-	}
 
 	// if the listing has an ID (i.e. it already exists) update it
 	if newListing.ID != "" {
@@ -214,18 +208,21 @@ func addSwap(c *gin.Context) {
 	}
 
 	// if the swap has an ID (i.e. it already exists) update it
-	//if newSwap.SwapID != "" {
-	//	err := ref.Update(ctx, map[string]interface{}{newSwap.SwapID: newSwap})
-	//	if err != nil {
-	//		log.Fatalln("Error setting value:", err)
-	//	}
-	//} else {
-	// create a new swap
-	_, err := ref.Push(ctx, newSwap)
-	if err != nil {
-		log.Fatalln("Error setting value:", err)
+	if newSwap.ID != "" {
+		var id = newSwap.ID
+		newSwap.ID = ""
+		err := ref.Update(ctx, map[string]interface{}{id: newSwap})
+
+		if err != nil {
+			log.Fatalln("Error setting value:", err)
+		}
+	} else {
+		// create a new swap
+		_, err := ref.Push(ctx, newSwap)
+		if err != nil {
+			log.Fatalln("Error setting value:", err)
+		}
 	}
-	//}
 
 	c.IndentedJSON(http.StatusCreated, newSwap)
 }

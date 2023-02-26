@@ -55,10 +55,10 @@ type Brand struct {
 //}
 
 type Swap struct {
-	ID            string `json:"swapId"`
+	ID            string `json:"id,omitempty"`
 	SwapperUserID string `json:"swapperUserId"`
 	SwappeeUserID string `json:"swappeeUserId"`
-	ListingID     string `json:"ListingId"`
+	ListingID     string `json:"listingId"`
 	SwapStatus    string `json:"swapStatus"`
 	// TODO SwapChat
 }
