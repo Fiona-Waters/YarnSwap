@@ -70,13 +70,12 @@ func getSwaps(c *gin.Context) {
 		s.ID = r.Key()
 		listing := getListingById(c, s.ListingID)
 		//add new struct to array
-		if listing.ID == s.ListingID {
-			swapListing := models.SwapListing{Swap: s, Listing: listing}
-			log.Printf("swapListing %v", swapListing)
-			data[i] = swapListing
-		}
+
+		swapListing := models.SwapListing{Swap: s, Listing: listing}
+		data[i] = swapListing
+
 	}
-	log.Default().Println("data = ", data)
+	//log.Default().Println("data = ", data)
 	c.IndentedJSON(http.StatusOK, data)
 }
 
@@ -85,24 +84,10 @@ func getListingById(c *gin.Context, listingId string) models.Listing {
 	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
 	ref := client.NewRef("listings")
-	//retrieve the listings in order of the keys
-	results, err := ref.OrderByKey().GetOrdered(ctx)
-	if err != nil {
-		log.Fatalln("Error querying database:", err)
-	}
-	//create an array the same length as the number of results
-	data := make([]models.Listing, len(results))
-	var l models.Listing
-	//loop over the results and individually marshal into Listing struct
-	for i, r := range results {
-		//var l models.Listing
-		if err := r.Unmarshal(&l); err != nil {
-			log.Fatalln("Error unmarshaling result:", err)
-		}
-		data[i] = l
-	}
-	c.IndentedJSON(http.StatusOK, data)
-	return l
+	var listing models.Listing
+	ref.Child(listingId).Get(ctx, &listing)
+
+	return listing
 }
 
 func getBrands(c *gin.Context) {
@@ -222,13 +207,11 @@ func addListing(c *gin.Context) {
 func addSwap(c *gin.Context) {
 	ctx, client, _ := controllers.InitialiseFirebaseApp()
 	ref := client.NewRef("swaps")
-	log.Println("hello")
 	var newSwap models.Swap
 	if err := c.BindJSON(&newSwap); err != nil {
 		log.Printf("error binding: %v\n", err)
 		return
 	}
-	log.Printf("newswap %v", newSwap)
 
 	// if the swap has an ID (i.e. it already exists) update it
 	//if newSwap.SwapID != "" {
@@ -284,10 +267,9 @@ func main() {
 	router.GET("/weights", getWeights)
 	router.GET("/fibres", getFibreContents)
 	router.POST("/swaps", authMiddleware, addSwap)
-	router.GET("swaps", getSwaps)
+	router.GET("/swaps", getSwaps)
 	router.Run("0.0.0.0:8080")
 
 }
 
-//TODO addSwap and getSwaps functions
 //TODO wishlist functions

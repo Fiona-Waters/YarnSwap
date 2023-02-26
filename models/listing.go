@@ -64,8 +64,8 @@ type Swap struct {
 }
 
 type SwapListing struct {
-	Swap    Swap
-	Listing Listing
+	Swap    Swap    `json:"swap"`
+	Listing Listing `json:"listing"`
 }
 
 //
