@@ -55,12 +55,13 @@ type Brand struct {
 //}
 
 type Swap struct {
-	ID            string `json:"id,omitempty"`
-	SwapperUserID string `json:"swapperUserId"`
-	SwappeeUserID string `json:"swappeeUserId"`
-	ListingID     string `json:"listingId"`
-	SwapStatus    string `json:"swapStatus"`
-	// TODO SwapChat
+	ID             string `json:"id,omitempty"`
+	SwapName       string `json:"swapName"`
+	SwapperUserID  string `json:"swapperUserId"`
+	SwappeeUserID  string `json:"swappeeUserId"`
+	ListingID      string `json:"listingId"`
+	SwapStatus     string `json:"swapStatus"`
+	ChatChannelUrl string `json:"chatChannelUrl"`
 }
 
 type SwapListing struct {
