@@ -248,8 +248,8 @@ func authMiddleware(c *gin.Context) {
 }
 
 func main() {
-	controllers.InitialiseFirebaseApp()
-	controllers.PopulateFirebase()
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
+	controllers.PopulateFirebase(ctx, client)
 
 	router := gin.Default()
 	//router.Use(cors.Default())

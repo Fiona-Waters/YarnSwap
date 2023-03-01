@@ -269,18 +269,10 @@ func InitialiseFirebaseApp() (context.Context, *db.Client, *firebase.App) {
 		log.Fatalln("Error initialising database client:", err)
 	}
 
-	ref := client.NewRef("listings")
-	var data map[string]interface{}
-	if err := ref.Get(ctx, &data); err != nil {
-		log.Fatalln("Error reading data from database:", err)
-	}
-	//fmt.Println(data)
-
 	return ctx, client, app
 }
 
-func addBrandsToFirebase() {
-	ctx, client, _ := InitialiseFirebaseApp()
+func addBrandsToFirebase(ctx context.Context, client *db.Client) {
 	ref := client.NewRef("brands")
 
 	for _, v := range Brands {
@@ -292,8 +284,7 @@ func addBrandsToFirebase() {
 	}
 }
 
-func addWeightsToFirebase() {
-	ctx, client, _ := InitialiseFirebaseApp()
+func addWeightsToFirebase(ctx context.Context, client *db.Client) {
 	ref := client.NewRef("weights")
 
 	for _, v := range Weights {
@@ -305,8 +296,7 @@ func addWeightsToFirebase() {
 	}
 }
 
-func addFibresToFirebase() {
-	ctx, client, _ := InitialiseFirebaseApp()
+func addFibresToFirebase(ctx context.Context, client *db.Client) {
 	ref := client.NewRef("fibres")
 
 	for _, v := range Fibres {
@@ -331,9 +321,9 @@ func addFibresToFirebase() {
 //	}
 //}
 
-func PopulateFirebase() {
-	addBrandsToFirebase()
-	addWeightsToFirebase()
-	addFibresToFirebase()
+func PopulateFirebase(ctx context.Context, client *db.Client) {
+	addBrandsToFirebase(ctx, client)
+	addWeightsToFirebase(ctx, client)
+	addFibresToFirebase(ctx, client)
 	//	addListingStatusesToFirebase()
 }
