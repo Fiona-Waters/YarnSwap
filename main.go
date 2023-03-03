@@ -117,37 +117,15 @@ func getUsers(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, data)
 }
 
-func getUserById(userId string) models.User {
+func getUser(c *gin.Context) {
+	id := c.Param("id")
 	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
 	ref := client.NewRef("users")
 	var user models.User
-	ref.Child(userId).Get(ctx, &user)
+	ref.Child(id).Get(ctx, &user)
 
-	return user
-}
-
-func getUser(c *gin.Context) {
-	ctx, client, _ := controllers.InitialiseFirebaseApp()
-	ref := client.NewRef("users")
-	results, err := ref.OrderByKey().GetOrdered(ctx)
-	if err != nil {
-		log.Fatalln("Error querying database:", err)
-	}
-	data := make([]models.User, len(results))
-
-	for k, v := range results {
-		var u models.User
-		if err := v.Unmarshal(&u); err != nil {
-			log.Fatalln("error unmarshaling result")
-		}
-		u.ID = v.Key()
-		user := getUserById(u.ID)
-		data[k] = user
-	}
-	log.Default().Println("data getUser = ", data)
-
-	c.IndentedJSON(http.StatusOK, data)
+	c.IndentedJSON(http.StatusOK, user)
 }
 
 func getBrands(c *gin.Context) {
@@ -358,7 +336,7 @@ func main() {
 	router.GET("/swaps", getSwaps)
 	router.POST("/users", authMiddleware, addUserDetails)
 	//router.GET("/users", getUsers)
-	//router.GET("/users", getUser)
+	router.GET("/user/:id", getUser)
 	router.Run("0.0.0.0:8080")
 
 }
