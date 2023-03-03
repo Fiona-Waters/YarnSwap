@@ -78,7 +78,7 @@ type SwapListing struct {
 //}
 
 type Wishlist struct {
-	UserWishlist *[]Listing `json:"userWishlist"'`
+	UserWishlist *[]Listing `json:"userWishlist"`
 	Project      *Project   `json:"projects"`
 }
 

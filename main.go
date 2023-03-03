@@ -87,6 +87,69 @@ func getListingById(listingId string) models.Listing {
 	return listing
 }
 
+func getUsers(c *gin.Context) {
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
+
+	//Create Ref for users
+	ref := client.NewRef("users")
+	//retrieve the users in order of the keys
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//create an array the same length as the number of results
+	data := make([]models.User, len(results))
+
+	//loop over the results and individually marshal into Listing struct
+	for i, r := range results {
+		var u models.User
+
+		if err := r.Unmarshal(&u); err != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		u.ID = r.Key()
+		//add new struct to array
+		data[i] = u
+	}
+
+	log.Default().Println("data getUsersssss = ", data)
+
+	c.IndentedJSON(http.StatusOK, data)
+}
+
+func getUserById(userId string) models.User {
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
+
+	ref := client.NewRef("users")
+	var user models.User
+	ref.Child(userId).Get(ctx, &user)
+
+	return user
+}
+
+func getUser(c *gin.Context) {
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
+	ref := client.NewRef("users")
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	data := make([]models.User, len(results))
+
+	for k, v := range results {
+		var u models.User
+		if err := v.Unmarshal(&u); err != nil {
+			log.Fatalln("error unmarshaling result")
+		}
+		u.ID = v.Key()
+		user := getUserById(u.ID)
+		data[k] = user
+	}
+	log.Default().Println("data getUser = ", data)
+
+	c.IndentedJSON(http.StatusOK, data)
+}
+
 func getBrands(c *gin.Context) {
 	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
@@ -188,6 +251,8 @@ func addListing(c *gin.Context) {
 		}
 	} else {
 		// create a new listing
+		//TODO newListing.Timestamp = time.Now()
+		//log.Printf("timestamp %v", newListing.Timestamp)
 		_, err := ref.Push(ctx, newListing)
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
@@ -195,6 +260,32 @@ func addListing(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusCreated, newListing)
+}
+
+func addUserDetails(c *gin.Context) {
+	ctx, client, _ := controllers.InitialiseFirebaseApp()
+	ref := client.NewRef("users")
+
+	var newUser models.User
+	if err := c.BindJSON(&newUser); err != nil {
+		return
+	}
+	// if the user has an id - update it
+	if newUser.ID != "" {
+		var id = newUser.ID
+		newUser.ID = ""
+		err := ref.Update(ctx, map[string]interface{}{id: newUser})
+		if err != nil {
+			log.Fatalln("Error setting value:", err)
+		}
+	} else {
+		// else create a new record
+		_, err := ref.Push(ctx, newUser)
+		if err != nil {
+			log.Fatalln("Error setting value:", err)
+		}
+	}
+	c.IndentedJSON(http.StatusCreated, newUser)
 }
 
 // function to add a swap
@@ -265,6 +356,9 @@ func main() {
 	router.GET("/fibres", getFibreContents)
 	router.POST("/swaps", authMiddleware, addSwap)
 	router.GET("/swaps", getSwaps)
+	router.POST("/users", authMiddleware, addUserDetails)
+	//router.GET("/users", getUsers)
+	//router.GET("/users", getUser)
 	router.Run("0.0.0.0:8080")
 
 }
