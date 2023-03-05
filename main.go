@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"time"
 )
 
 // listings to seed the database
@@ -82,7 +83,10 @@ func getListingById(listingId string) models.Listing {
 
 	ref := client.NewRef("listings")
 	var listing models.Listing
-	ref.Child(listingId).Get(ctx, &listing)
+	err := ref.Child(listingId).Get(ctx, &listing)
+	if err != nil {
+		log.Fatalln("Error getting listing:", err)
+	}
 
 	return listing
 }
@@ -117,15 +121,24 @@ func getUsers(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, data)
 }
 
-func getUser(c *gin.Context) {
+func getUserProfile(c *gin.Context) {
 	id := c.Param("id")
 	ctx, client, _ := controllers.InitialiseFirebaseApp()
 
 	ref := client.NewRef("users")
 	var user models.User
-	ref.Child(id).Get(ctx, &user)
 
-	c.IndentedJSON(http.StatusOK, user)
+	err := ref.Child(id).Get(ctx, &user)
+	if err != nil {
+		c.AbortWithStatus(404)
+	}
+
+	if user.UserName == "" {
+		c.AbortWithStatus(404)
+	} else {
+		c.IndentedJSON(http.StatusOK, user)
+	}
+
 }
 
 func getBrands(c *gin.Context) {
@@ -230,7 +243,8 @@ func addListing(c *gin.Context) {
 	} else {
 		// create a new listing
 		//TODO newListing.Timestamp = time.Now()
-		//log.Printf("timestamp %v", newListing.Timestamp)
+		newListing.Timestamp = time.Now()
+		log.Printf("timestamp %v", newListing.Timestamp)
 		_, err := ref.Push(ctx, newListing)
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
@@ -258,6 +272,7 @@ func addUserDetails(c *gin.Context) {
 		}
 	} else {
 		// else create a new record
+		newUser.Timestamp = time.Now()
 		_, err := ref.Push(ctx, newUser)
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
@@ -336,7 +351,7 @@ func main() {
 	router.GET("/swaps", getSwaps)
 	router.POST("/users", authMiddleware, addUserDetails)
 	//router.GET("/users", getUsers)
-	router.GET("/user/:id", getUser)
+	router.GET("/user/:id", getUserProfile)
 	router.Run("0.0.0.0:8080")
 
 }
