@@ -249,6 +249,18 @@ func addListing(c *gin.Context) {
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
 		}
+		userRef := client.NewRef("users")
+		// increase the users amount of listings added variable by 1
+		var user models.User
+		err = userRef.Child(newListing.UserId).Get(ctx, &user)
+		if err != nil {
+			log.Printf("error getting user")
+		}
+		user.AmtListingsAdded++
+		err = userRef.Update(ctx, map[string]interface{}{newListing.UserId: user})
+		if err != nil {
+			log.Printf("error updating user")
+		}
 	}
 
 	c.IndentedJSON(http.StatusCreated, newListing)
@@ -262,10 +274,54 @@ func addUserDetails(c *gin.Context) {
 	if err := c.BindJSON(&newUser); err != nil {
 		return
 	}
-	// if the user has an id - update it
+	// if the user has an id - update the existing record
 	if newUser.ID != "" {
 		var id = newUser.ID
 		newUser.ID = ""
+		if newUser.AccountStatus == "Archived" {
+			listingsRef := client.NewRef("listings")
+			results, err := listingsRef.OrderByKey().GetOrdered(ctx)
+			if err != nil {
+				log.Fatalln("Error querying database:", err)
+			}
+			for _, v := range results {
+				var l models.Listing
+				if err := v.Unmarshal(&l); err != nil {
+					log.Fatalln("Error unmarshaling result", err)
+				}
+				if l.UserId == id {
+					l.Status = "Archived"
+					err = listingsRef.Update(ctx, map[string]interface{}{v.Key(): l})
+					{
+						if err != nil {
+							log.Printf("error updating listings %v", err)
+						}
+					}
+				}
+			}
+		}
+		if newUser.AccountStatus == "Active" {
+			listingsRef := client.NewRef("listings")
+			results, err := listingsRef.OrderByKey().GetOrdered(ctx)
+			if err != nil {
+				log.Fatalln("Error querying database:", err)
+			}
+
+			for _, v := range results {
+				var l models.Listing
+				if err := v.Unmarshal(&l); err != nil {
+					log.Fatalln("Error unmarshaling result", err)
+				}
+
+				if l.UserId == id {
+					l.Status = "Active"
+					err = listingsRef.Update(ctx, map[string]interface{}{v.Key(): l})
+					if err != nil {
+						log.Printf("error updating listings %v", err)
+					}
+				}
+			}
+		}
 		err := ref.Update(ctx, map[string]interface{}{id: newUser})
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
@@ -295,8 +351,35 @@ func addSwap(c *gin.Context) {
 	if newSwap.ID != "" {
 		var id = newSwap.ID
 		newSwap.ID = ""
-		err := ref.Update(ctx, map[string]interface{}{id: newSwap})
+		// if a swap has been completed add 1 'AmtSwapsCompleted' to each user involved in the swap
+		if newSwap.SwapStatus == "Complete" {
+			userRef := client.NewRef("users")
+			// increase the users amount of listings added variable by 1
+			var swapper models.User
+			err := userRef.Child(newSwap.SwapperUserID).Get(ctx, &swapper)
+			if err != nil {
+				log.Printf("error getting user: swapper %v", err)
+			}
+			swapper.AmtSwapsCompleted++
+			err2 := userRef.Update(ctx, map[string]interface{}{newSwap.SwapperUserID: swapper})
+			if err != nil {
+				log.Printf("error updating user: swapper %v", err2)
+			}
+			var swappee models.User
+			err3 := userRef.Child(newSwap.SwappeeUserID).Get(ctx, &swappee)
+			if err != nil {
+				log.Printf("error getting user: swappee %v", err3)
+			}
+			swappee.AmtSwapsCompleted++
+			// if swap is completed take 1 token from swappee
+			swappee.RemainingTokens--
+			err4 := userRef.Update(ctx, map[string]interface{}{newSwap.SwappeeUserID: swappee})
+			if err != nil {
+				log.Printf("error updating user: swappee %v", err4)
+			}
 
+		}
+		err := ref.Update(ctx, map[string]interface{}{id: newSwap})
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
 		}
