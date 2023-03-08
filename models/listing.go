@@ -9,6 +9,7 @@ import (
 type Listing struct {
 	ID             string    `json:"id,omitempty"`
 	UserId         string    `json:"userId"`
+	UserName       string    `json:"userName"`
 	Brand          string    `json:"brand"`
 	Colourway      string    `json:"colourway"`
 	Meterage       int       `json:"meterage"`

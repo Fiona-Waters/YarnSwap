@@ -232,6 +232,13 @@ func addListing(c *gin.Context) {
 		return
 	}
 
+	userRef := client.NewRef("users")
+	var user models.User
+	err := userRef.Child(newListing.UserId).Get(ctx, &user)
+	if err != nil {
+		log.Printf("error getting user")
+	}
+
 	// if the listing has an ID (i.e. it already exists) update it
 	if newListing.ID != "" {
 		var id = newListing.ID
@@ -242,32 +249,27 @@ func addListing(c *gin.Context) {
 		}
 	} else {
 		// create a new listing
-		//TODO newListing.Timestamp = time.Now()
 		newListing.Timestamp = time.Now()
+		// set the listing owners username
+		newListing.UserName = user.UserName
 		log.Printf("timestamp %v", newListing.Timestamp)
 		_, err := ref.Push(ctx, newListing)
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
 		}
-		userRef := client.NewRef("users")
 		// increase the users amount of listings added variable by 1
-		var user models.User
-		err = userRef.Child(newListing.UserId).Get(ctx, &user)
-		if err != nil {
-			log.Printf("error getting user")
-		}
 		user.AmtListingsAdded++
 		err = userRef.Update(ctx, map[string]interface{}{newListing.UserId: user})
 		if err != nil {
 			log.Printf("error updating user")
 		}
 	}
-
 	c.IndentedJSON(http.StatusCreated, newListing)
 }
 
 func addUserDetails(c *gin.Context) {
 	ctx, client, _ := controllers.InitialiseFirebaseApp()
+
 	ref := client.NewRef("users")
 
 	var newUser models.User
@@ -279,6 +281,7 @@ func addUserDetails(c *gin.Context) {
 		var id = newUser.ID
 		newUser.ID = ""
 		if newUser.AccountStatus == "Archived" {
+			newUser.ArchiveTimestamp = time.Now()
 			listingsRef := client.NewRef("listings")
 			results, err := listingsRef.OrderByKey().GetOrdered(ctx)
 			if err != nil {
@@ -291,6 +294,7 @@ func addUserDetails(c *gin.Context) {
 				}
 				if l.UserId == id {
 					l.Status = "Archived"
+
 					err = listingsRef.Update(ctx, map[string]interface{}{v.Key(): l})
 					{
 						if err != nil {
@@ -314,7 +318,7 @@ func addUserDetails(c *gin.Context) {
 				}
 
 				if l.UserId == id {
-					l.Status = "Active"
+					l.Status = "Available"
 					err = listingsRef.Update(ctx, map[string]interface{}{v.Key(): l})
 					if err != nil {
 						log.Printf("error updating listings %v", err)
@@ -328,13 +332,52 @@ func addUserDetails(c *gin.Context) {
 		}
 	} else {
 		// else create a new record
-		newUser.Timestamp = time.Now()
+		newUser.CreationTimestamp = time.Now()
+		log.Printf("time %v", time.Now())
 		_, err := ref.Push(ctx, newUser)
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
 		}
 	}
 	c.IndentedJSON(http.StatusCreated, newUser)
+}
+
+// TODO how to implement this?
+func deleteUser(c *gin.Context) {
+	ctx, client, app := controllers.InitialiseFirebaseApp()
+	authClient, err := app.Auth(ctx)
+	if err != nil {
+		log.Fatalf("error initializing auth client: %v\n", err)
+	}
+
+	ref := client.NewRef("users")
+
+	var newUser models.User
+	if err := c.BindJSON(&newUser); err != nil {
+		return
+	}
+	if newUser.ID != "" {
+		var id = newUser.ID
+		newUser.ID = ""
+		if newUser.AccountStatus == "Archived" && newUser.ArchiveTimestamp.Sub(time.Now()) >= 720 {
+			log.Printf("timestamp %v", newUser.ArchiveTimestamp.Sub(time.Now()))
+			// TODO delete this users listings & swaps?
+			newUser.AccountStatus = "Deleted"
+		}
+		err := ref.Update(ctx, map[string]interface{}{id: newUser})
+		if err != nil {
+			log.Fatalln("Error setting value:", err)
+		}
+		// check if it has been 30 days since the user has been archived - if it has delete the user
+		// also delete their listings
+
+		err = authClient.DeleteUser(ctx, id)
+		if err != nil {
+			log.Printf("error deleting user: %v", err)
+		}
+		log.Printf("successfully deleted user: %s ", id)
+	}
+
 }
 
 // function to add a swap

@@ -9,5 +9,6 @@ type User struct {
 	AccountStatus     string    `json:"accountStatus"`
 	AmtListingsAdded  int       `json:"amtListingsAdded"`
 	AmtSwapsCompleted int       `json:"amtSwapsCompleted"`
-	Timestamp         time.Time `json:"timestamp"`
+	CreationTimestamp time.Time `json:"creationTimestamp"`
+	ArchiveTimestamp  time.Time `json:"archiveTimestamp"`
 }
