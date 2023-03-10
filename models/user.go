@@ -11,4 +11,5 @@ type User struct {
 	AmtSwapsCompleted int       `json:"amtSwapsCompleted"`
 	CreationTimestamp time.Time `json:"creationTimestamp"`
 	ArchiveTimestamp  time.Time `json:"archiveTimestamp"`
+	Role              string    `json:"role"`
 }

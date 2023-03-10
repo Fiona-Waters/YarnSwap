@@ -24,6 +24,7 @@ type Listing struct {
 	Timestamp      time.Time `json:"timestamp"`
 	ImageUrl       string    `json:"image"`
 	Status         string    `json:"status"`
+	ListingNote    string    `json:"listingNote"`
 	//	Status         *ListingStatus `json:"status"`
 }
 

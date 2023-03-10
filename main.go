@@ -333,6 +333,7 @@ func addUserDetails(c *gin.Context) {
 	} else {
 		// else create a new record
 		newUser.CreationTimestamp = time.Now()
+		newUser.Role = "user"
 		log.Printf("time %v", time.Now())
 		_, err := ref.Push(ctx, newUser)
 		if err != nil {
