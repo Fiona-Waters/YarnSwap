@@ -252,13 +252,18 @@ func addListing(c *gin.Context) {
 		newListing.Timestamp = time.Now()
 		// set the listing owners username
 		newListing.UserName = user.UserName
+		if newListing.Swappable == true {
+			newListing.Status = "Awaiting approval"
+		} else {
+			newListing.Status = "Available"
+		}
+		// increase the users amount of listings added variable by 1
+		user.AmtListingsAdded++
 		log.Printf("timestamp %v", newListing.Timestamp)
 		_, err := ref.Push(ctx, newListing)
 		if err != nil {
 			log.Fatalln("Error setting value:", err)
 		}
-		// increase the users amount of listings added variable by 1
-		user.AmtListingsAdded++
 		err = userRef.Update(ctx, map[string]interface{}{newListing.UserId: user})
 		if err != nil {
 			log.Printf("error updating user")
