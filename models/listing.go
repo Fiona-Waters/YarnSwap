@@ -55,39 +55,3 @@ type Brand struct {
 //	Enabled    bool   `json:"enabled"`
 //	SortOrder  int    `json:"sortOrder"`
 //}
-
-type Swap struct {
-	ID             string `json:"id,omitempty"`
-	SwapName       string `json:"swapName"`
-	SwapperUserID  string `json:"swapperUserId"`
-	SwappeeUserID  string `json:"swappeeUserId"`
-	ListingID      string `json:"listingId"`
-	SwapStatus     string `json:"swapStatus"`
-	ChatChannelUrl string `json:"chatChannelUrl"`
-}
-
-type SwapListing struct {
-	Swap    Swap    `json:"swap"`
-	Listing Listing `json:"listing"`
-}
-
-//
-//type SwapStatus struct {
-//	StatusId   string `json:"statusId"`
-//	StatusName string `json:"statusName"`
-//	Enabled    bool   `json:"enabled"`
-//	SortOrder  int    `json:"sortOrder"`
-//}
-
-type Wishlist struct {
-	UserWishlist *[]Listing `json:"userWishlist"`
-	Project      *Project   `json:"projects"`
-}
-
-type Project struct {
-	ProjectName   string     `json:"projectName"`
-	ProjectID     string     `json:"projectId"`
-	LinkToPattern string     `json:"linkToPattern"`
-	DateAdded     time.Time  `json:"dateAdded"`
-	Listings      *[]Listing `json:"listings"`
-}
