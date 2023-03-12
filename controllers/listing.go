@@ -103,6 +103,37 @@ func AddListing(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newListing)
 }
 
+func DeleteUserListings(userId string) error {
+	ctx, client, _ := InitialiseFirebaseApp()
+
+	listingsRef := client.NewRef("listings")
+
+	//retrieve the listings in order of the keys
+	results, err := listingsRef.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	log.Printf("results %v:", results)
+
+	//loop over the results and individually marshal into Listing struct
+	for _, r := range results {
+		var l models.Listing
+		if err := r.Unmarshal(&l); err != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		// get listings that match this userId
+		if l.UserId == userId {
+			l.ID = r.Key()
+			// delete the listings
+			err := listingsRef.Child(l.ID).Delete(ctx)
+			if err != nil {
+				log.Fatalln("Error deleting user listings")
+			}
+		}
+	}
+	return nil
+}
+
 // GetBrands function to get brands from firebase realtime database to populate dropdown in add listing form
 func GetBrands(c *gin.Context) {
 	ctx, client, _ := InitialiseFirebaseApp()

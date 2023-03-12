@@ -94,3 +94,31 @@ func AddSwap(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusCreated, newSwap)
 }
+
+func DeleteUserSwaps(userId string) error {
+	ctx, client, _ := InitialiseFirebaseApp()
+
+	swapsRef := client.NewRef("swaps")
+
+	//retrieve the listings in order of the keys
+	results, err := swapsRef.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//loop over the results and individually marshal into Listing struct
+	for _, r := range results {
+		var s models.Swap
+		if err := r.Unmarshal(&s); err != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		// get listings that match this userId
+		if s.SwapperUserID == userId {
+			s.ID = r.Key()
+			err := swapsRef.Child(s.ID).Delete(ctx)
+			if err != nil {
+				log.Fatalln("Error deleting user swaps")
+			}
+		}
+	}
+	return nil
+}

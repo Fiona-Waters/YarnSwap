@@ -131,10 +131,11 @@ func AddUserDetails(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newUser)
 }
 
-//  TODO how to implement this?
+//TODO create a cron job that utilises DeleteUser function
 
 // DeleteUser function to delete user
-func DeleteUser(c *gin.Context) {
+// including user listings, user swaps + firebase auth record
+func DeleteUser(userId string) error {
 	ctx, client, app := InitialiseFirebaseApp()
 	authClient, err := app.Auth(ctx)
 	if err != nil {
@@ -144,29 +145,36 @@ func DeleteUser(c *gin.Context) {
 	ref := client.NewRef("users")
 
 	var newUser models.User
-	if err := c.BindJSON(&newUser); err != nil {
-		return
+	err = ref.Child(userId).Get(ctx, &newUser)
+	if err != nil {
+		log.Fatalln("Error getting user: ", err)
 	}
-	if newUser.ID != "" {
-		var id = newUser.ID
-		newUser.ID = ""
-		// check if it has been 30 days(in nanoseconds) since the user has been archived - if it has delete the user
-		// also delete their listings, swaps and user profile
-		if newUser.AccountStatus == "Archived" && newUser.ArchiveTimestamp.Sub(time.Now()) >= time.Duration(2.592e+15) {
-			log.Printf("timestamp %v", newUser.ArchiveTimestamp.Sub(time.Now()))
-			// TODO delete this users listings, swaps & user profile
-			newUser.AccountStatus = "Deleted"
-		}
-		err := ref.Update(ctx, map[string]interface{}{id: newUser})
+	// check if it has been 30 days(in nanoseconds) since the user has been archived - mark the user record as deleted
+	if newUser.AccountStatus == "Archived" && newUser.ArchiveTimestamp.Sub(time.Now()) >= time.Duration(2.592e+15) {
+		log.Printf("timestamp %v", newUser.ArchiveTimestamp.Sub(time.Now()))
+		newUser.AccountStatus = "Deleted"
+		err := DeleteUserListings(userId)
 		if err != nil {
-			log.Fatalln("Error setting value:", err)
+			log.Fatalln("Error deleting user listings ", err)
 		}
-
-		err = authClient.DeleteUser(ctx, id)
+		err = DeleteUserSwaps(userId)
 		if err != nil {
-			log.Printf("error deleting user: %v", err)
+			log.Fatalln("Error deleting user swaps ", err)
 		}
-		log.Printf("successfully deleted user: %s ", id)
 	}
+	if newUser.AccountStatus == "Active" {
+		newUser.ArchiveTimestamp = time.Time{}
+	}
+	err = ref.Update(ctx, map[string]interface{}{userId: newUser})
+	if err != nil {
+		log.Fatalln("Error setting value:", err)
+	}
+	//delete user from firebase auth
+	err = authClient.DeleteUser(ctx, userId)
+	if err != nil {
+		log.Printf("error deleting user: %v", err)
+	}
+	log.Printf("successfully deleted user: %s ", userId)
 
+	return nil
 }
