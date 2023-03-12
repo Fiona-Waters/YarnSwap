@@ -8,6 +8,7 @@ type Swap struct {
 	ListingID      string `json:"listingId"`
 	SwapStatus     string `json:"swapStatus"`
 	ChatChannelUrl string `json:"chatChannelUrl"`
+	SwapNote       string `json:"swapNote"`
 }
 
 type SwapListing struct {
