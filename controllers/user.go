@@ -73,7 +73,7 @@ func AddUserDetails(c *gin.Context) {
 
 	var id = newUser.ID
 	newUser.ID = ""
-	uniqueUsername := isUsernameUnique(newUser.UserName)
+	uniqueUsername := isUsernameUnique(id, newUser.UserName)
 	log.Printf("uniqueusername %v", uniqueUsername)
 	if uniqueUsername {
 		if newUser.AccountStatus == "Archived" {
@@ -184,9 +184,8 @@ func DeleteUser(userId string) error {
 	return nil
 }
 
-func isUsernameUnique(userName string) bool {
+func isUsernameUnique(id string, userName string) bool {
 	//get all user profiles
-	log.Println("hello line 189")
 	ctx, client, _ := InitialiseFirebaseApp()
 
 	//Create Ref for users
@@ -205,7 +204,7 @@ func isUsernameUnique(userName string) bool {
 		}
 		u.ID = r.Key()
 		// if suggested username matches existing username return false
-		if u.UserName == userName {
+		if u.UserName == userName && u.ID != id {
 			res = false
 			break
 		}

@@ -29,6 +29,7 @@ type Listing struct {
 }
 
 type Weight struct {
+	WeightId      string `json:"weightId"`
 	WeightName    string `json:"weightName"`
 	WeightAltName string `json:"weightAltName"`
 	Enabled       bool   `json:"enabled"`
