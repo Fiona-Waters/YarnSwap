@@ -247,32 +247,38 @@ var Fibres = []models.FibreContent{
 	},
 }
 
-//var ListingStatuses = []models.ListingStatus{
-//	{
-//		StatusId:   "1",
-//		StatusName: "Available",
-//		Enabled:    true,
-//		SortOrder:  1,
-//	},
-//	{
-//		StatusId:   "2",
-//		StatusName: "Unavailable",
-//		Enabled:    true,
-//		SortOrder:  2,
-//	},
-//	{
-//		StatusId:   "3",
-//		StatusName: "Inactive",
-//		Enabled:    true,
-//		SortOrder:  3,
-//	},
-//	{
-//		StatusId:   "4",
-//		StatusName: "Archived",
-//		Enabled:    true,
-//		SortOrder:  4,
-//	},
-//}
+var ListingStatuses = []models.ListingStatus{
+	{
+		StatusId:   "0",
+		StatusName: "Awaiting approval",
+		Enabled:    true,
+		SortOrder:  1,
+	},
+	{
+		StatusId:   "1",
+		StatusName: "Available",
+		Enabled:    true,
+		SortOrder:  2,
+	},
+	{
+		StatusId:   "2",
+		StatusName: "Declined",
+		Enabled:    true,
+		SortOrder:  3,
+	},
+	{
+		StatusId:   "3",
+		StatusName: "Swap requested",
+		Enabled:    true,
+		SortOrder:  4,
+	},
+	{
+		StatusId:   "4",
+		StatusName: "Archived",
+		Enabled:    true,
+		SortOrder:  5,
+	},
+}
 
 // InitialiseFirebaseApp function initialising firebase app and database and posting 2 listings.
 func InitialiseFirebaseApp() (context.Context, *db.Client, *firebase.App) {
@@ -334,22 +340,21 @@ func addFibresToFirebase(ctx context.Context, client *db.Client) {
 	}
 }
 
-//func addListingStatusesToFirebase() {
-//	ctx, client := InitialiseFirebaseApp()
-//	ref := client.NewRef("listing-status")
-//
-//	for _, v := range ListingStatuses {
-//		statusRef := ref.Child(v.StatusId)
-//		err := statusRef.Set(ctx, v)
-//		if err != nil {
-//			log.Fatalln("Error setting value:", err)
-//		}
-//	}
-//}
+func addListingStatusesToFirebase(ctx context.Context, client *db.Client) {
+	ref := client.NewRef("listing-status")
+
+	for _, v := range ListingStatuses {
+		statusRef := ref.Child(v.StatusId)
+		err := statusRef.Set(ctx, v)
+		if err != nil {
+			log.Fatalln("Error setting value:", err)
+		}
+	}
+}
 
 func PopulateFirebase(ctx context.Context, client *db.Client) {
 	addBrandsToFirebase(ctx, client)
 	addWeightsToFirebase(ctx, client)
 	addFibresToFirebase(ctx, client)
-	//	addListingStatusesToFirebase()
+	addListingStatusesToFirebase(ctx, client)
 }

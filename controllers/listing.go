@@ -217,3 +217,31 @@ func GetFibreContents(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, data)
 }
+
+// GetListingStatuses function to get listing statuses from firebase realtime database to populate dropdown for filter functionality
+func GetListingStatuses(c *gin.Context) {
+	ctx, client, _ := InitialiseFirebaseApp()
+
+	//Create Ref for fibre contents
+	ref := client.NewRef("listing-status")
+	//retrieve the listings in order of the keys
+	results, err := ref.OrderByKey().GetOrdered(ctx)
+	if err != nil {
+		log.Fatalln("Error querying database:", err)
+	}
+	//create an array the same length as the number of results
+	data := make([]models.ListingStatus, len(results))
+
+	//loop over the results and individually marshal into Listing struct
+	for i, r := range results {
+		var f models.ListingStatus
+		if e := r.Unmarshal(&f); e != nil {
+			log.Fatalln("Error unmarshaling result:", err)
+		}
+		//add new struct to array
+		data[i] = f
+	}
+	//	log.Default().Println("data = ", data)
+
+	c.IndentedJSON(http.StatusOK, data)
+}

@@ -44,10 +44,11 @@ func main() {
 	router.GET("/brands", controllers.GetBrands)
 	router.GET("/weights", controllers.GetWeights)
 	router.GET("/fibres", controllers.GetFibreContents)
+	router.GET("/listing-statuses", controllers.GetListingStatuses)
 	router.POST("/swaps", authMiddleware, controllers.AddSwap)
 	router.GET("/swaps", controllers.GetSwaps)
 	router.POST("/users", authMiddleware, controllers.AddUserDetails)
-	//router.GET("/users", getUsers)
+	router.GET("/users", controllers.GetUsers)
 	router.GET("/user/:id", authMiddleware, controllers.GetUserProfile)
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {

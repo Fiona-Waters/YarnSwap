@@ -50,9 +50,9 @@ type Brand struct {
 	SortOrder int    `json:"sortOrder"`
 }
 
-//type ListingStatus struct {
-//	StatusId   string `json:"statusId"`
-//	StatusName string `json:"statusName"`
-//	Enabled    bool   `json:"enabled"`
-//	SortOrder  int    `json:"sortOrder"`
-//}
+type ListingStatus struct {
+	StatusId   string `json:"statusId"`
+	StatusName string `json:"statusName"`
+	Enabled    bool   `json:"enabled"`
+	SortOrder  int    `json:"sortOrder"`
+}
