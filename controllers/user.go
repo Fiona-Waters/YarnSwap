@@ -34,7 +34,7 @@ func GetUsers(c *gin.Context) {
 		data[i] = u
 	}
 
-	log.Default().Println("data getUsers = ", data)
+	//log.Default().Println("data getUsers = ", data)
 
 	c.IndentedJSON(http.StatusOK, data)
 }
@@ -76,6 +76,7 @@ func AddUserDetails(c *gin.Context) {
 	uniqueUsername := isUsernameUnique(id, newUser.UserName)
 	log.Printf("uniqueusername %v", uniqueUsername)
 	if uniqueUsername {
+		newUser.CreationTimestamp = time.Now()
 		if newUser.AccountStatus == "Archived" {
 			newUser.ArchiveTimestamp = time.Now()
 			listingsRef := client.NewRef("listings")
@@ -90,7 +91,6 @@ func AddUserDetails(c *gin.Context) {
 				}
 				if l.UserId == id {
 					l.Status = "Archived"
-
 					err = listingsRef.Update(ctx, map[string]interface{}{v.Key(): l})
 					{
 						if err != nil {
@@ -102,8 +102,6 @@ func AddUserDetails(c *gin.Context) {
 		}
 		if newUser.AccountStatus == "Active" {
 			newUser.Role = "user"
-			// TODO below - only add creation timestamp if this is the first time the user has become active(not after restoring account)
-			//	newUser.CreationTimestamp = time.Now()
 			listingsRef := client.NewRef("listings")
 			results, err := listingsRef.OrderByKey().GetOrdered(ctx)
 			if err != nil {

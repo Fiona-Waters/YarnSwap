@@ -9,9 +9,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 )
+
+func TestMain(m *testing.M) {
+	// call flag.Parse() here if TestMain uses flags
+	os.Exit(m.Run())
+}
 
 func SetUpTestRouter() *gin.Engine {
 	router := gin.Default()
@@ -133,7 +139,7 @@ func TestGetListingStatuses(t *testing.T) {
 func TestAddSwap(t *testing.T) {
 	router := SetUpTestRouter()
 	router.POST("/swaps", controllers.AddSwap)
-	swapId := "test-swapId"
+	swapId := "test-swap-1"
 	swap := models.Swap{
 		ID:             swapId,
 		SwapName:       "green elephant red yarn swap chat",
@@ -233,3 +239,5 @@ func TestGetUserProfile(t *testing.T) {
 	assert.NotEmpty(t, user)
 
 }
+
+//TODO cleanup test data

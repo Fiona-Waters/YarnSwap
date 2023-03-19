@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"time"
 )
 
 // GetSwaps function to get swaps
@@ -49,6 +50,7 @@ func AddSwap(c *gin.Context) {
 	}
 
 	// if the swap has an ID (i.e. it already exists) update it
+	newSwap.Timestamp = time.Now()
 	if newSwap.ID != "" {
 		var id = newSwap.ID
 		newSwap.ID = ""

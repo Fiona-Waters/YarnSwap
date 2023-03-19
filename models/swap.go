@@ -1,14 +1,19 @@
 package models
 
+import (
+	"time"
+)
+
 type Swap struct {
-	ID             string `json:"id,omitempty"`
-	SwapName       string `json:"swapName"`
-	SwapperUserID  string `json:"swapperUserId"`
-	SwappeeUserID  string `json:"swappeeUserId"`
-	ListingID      string `json:"listingId"`
-	SwapStatus     string `json:"swapStatus"`
-	ChatChannelUrl string `json:"chatChannelUrl"`
-	SwapNote       string `json:"swapNote"`
+	ID             string    `json:"id,omitempty"`
+	SwapName       string    `json:"swapName"`
+	SwapperUserID  string    `json:"swapperUserId"`
+	SwappeeUserID  string    `json:"swappeeUserId"`
+	ListingID      string    `json:"listingId"`
+	SwapStatus     string    `json:"swapStatus"`
+	ChatChannelUrl string    `json:"chatChannelUrl"`
+	SwapNote       string    `json:"swapNote"`
+	Timestamp      time.Time `json:"timestamp"`
 }
 
 type SwapListing struct {
