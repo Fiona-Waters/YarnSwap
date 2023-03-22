@@ -289,7 +289,7 @@ func InitialiseFirebaseApp() (context.Context, *db.Client, *firebase.App) {
 		DatabaseURL:  "https://yarnswap-52dbd-default-rtdb.europe-west1.firebasedatabase.app",
 	}
 
-	opt := option.WithCredentialsFile("yarnswap-firebase.json")
+	opt := option.WithCredentialsFile("credentials/yarnswap-firebase.json")
 
 	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
