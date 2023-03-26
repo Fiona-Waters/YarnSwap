@@ -60,6 +60,17 @@ func GetUserProfile(c *gin.Context) {
 
 }
 
+func DeleteTestUserProfile(userId string) error {
+	ctx, client, _ := InitialiseFirebaseApp()
+
+	userRef := client.NewRef("users")
+	err := userRef.Child(userId).Delete(ctx)
+	if err != nil {
+		log.Fatalln("error deleting test user profile, please delete manually")
+	}
+	return nil
+}
+
 // AddUserDetails function to add/update user details
 func AddUserDetails(c *gin.Context) {
 	ctx, client, _ := InitialiseFirebaseApp()

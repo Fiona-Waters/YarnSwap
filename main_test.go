@@ -7,6 +7,7 @@ import (
 	"fionawaters/YarnSwap/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -70,6 +71,14 @@ func TestAddListing(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
+
+	t.Cleanup(func() {
+		err := controllers.DeleteUserListings(listing.UserId)
+		if err != nil {
+			log.Println("test-listing not deleted, please delete manually")
+		}
+	})
+
 }
 
 func TestGetBrands(t *testing.T) {
@@ -156,6 +165,13 @@ func TestAddSwap(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
+
+	t.Cleanup(func() {
+		err := controllers.DeleteUserSwaps(swap.SwapperUserID)
+		if err != nil {
+			log.Println("test-swap not deleted, please delete manually")
+		}
+	})
 }
 
 func TestGetSwaps(t *testing.T) {
@@ -171,7 +187,6 @@ func TestGetSwaps(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.NotEmpty(t, swaps)
-
 }
 
 func TestAddUserDetails(t *testing.T) {
@@ -195,6 +210,7 @@ func TestAddUserDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
+
 }
 
 func TestGetUsers(t *testing.T) {
@@ -238,6 +254,10 @@ func TestGetUserProfile(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.NotEmpty(t, user)
 
+	t.Cleanup(func() {
+		err := controllers.DeleteTestUserProfile(user.ID)
+		if err != nil {
+			log.Println("test-user-profile not deleted, please delete manually")
+		}
+	})
 }
-
-//TODO cleanup test data
