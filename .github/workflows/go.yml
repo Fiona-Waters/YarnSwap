@@ -18,6 +18,15 @@ jobs:
         with:
           go-version: 1.18.2
 
+      - name: Get firebase credentials
+        run: |
+          mkdir credentials
+          echo $ENV_FILE > credentials/yarnswap-firebase.json
+          cat credentials/yarnswap-firebase.json
+        shell: bash
+        env:
+          ENV_FILE: ${{secrets.YARNSWAP_FIREBASE}}
+
       - name: Build
         run: go build -v ./...
 
