@@ -280,7 +280,7 @@ var ListingStatuses = []models.ListingStatus{
 	},
 }
 
-// InitialiseFirebaseApp function initialising firebase app and database and posting 2 listings.
+// InitialiseFirebaseApp function initialising firebase app and database.
 func InitialiseFirebaseApp() (context.Context, *db.Client, *firebase.App) {
 	ctx := context.Background()
 

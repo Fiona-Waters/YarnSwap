@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// Swap struct represents detail about a swap
 type Swap struct {
 	ID             string    `json:"id,omitempty"`
 	SwapName       string    `json:"swapName"`
@@ -16,6 +17,7 @@ type Swap struct {
 	Timestamp      time.Time `json:"timestamp"`
 }
 
+// SwapListing an object containing a swap object and a listing object
 type SwapListing struct {
 	Swap    Swap    `json:"swap"`
 	Listing Listing `json:"listing"`
