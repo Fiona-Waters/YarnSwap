@@ -9,7 +9,7 @@ Yarn Swap is a Progressive Web Application where crafters can list and view yarn
 * Firebase (Auth, Realtime Database, Storage)
 
 ## Project Status: Deployed
-* Red Hat OpenShift Cluster: http://yarnswap-yarn-swap.apps.fwaters.uw4y.s1.devshift.org:8080/
+* Red Hat OpenShift Cluster: http://yarnswap-yarn-swap.apps.fwaters.uw4y.s1.devshift.org/
 **This may not be currently running.
 * The corresponding frontend application is deployed here: http://yarnswap-fe-yarn-swap.apps.fwaters.uw4y.s1.devshift.org/
 
