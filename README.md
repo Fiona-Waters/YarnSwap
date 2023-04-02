@@ -26,3 +26,7 @@ Yarn Swap is a Progressive Web Application where crafters can list and view yarn
 ## Testing
 * API endpoint testing has been added using the Go Testing Package.
 * Run these tests with `go test`
+
+## Final Project Report
+* For more information please refer to the final project report
+  - https://github.com/Fiona-Waters/YarnSwap/blob/main/FionaWaters-20095357-Project-FinalReport.pdf
