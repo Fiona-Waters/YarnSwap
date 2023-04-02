@@ -86,6 +86,8 @@ func AddUserDetails(c *gin.Context) {
 	newUser.ID = ""
 	uniqueUsername := isUsernameUnique(id, newUser.UserName)
 	log.Printf("uniqueusername %v", uniqueUsername)
+
+	existingUser := GetUserById(id)
 	if uniqueUsername {
 		newUser.CreationTimestamp = time.Now()
 		if newUser.AccountStatus == "Archived" {
@@ -111,7 +113,7 @@ func AddUserDetails(c *gin.Context) {
 				}
 			}
 		}
-		if newUser.AccountStatus == "Active" {
+		if newUser.AccountStatus == "Active" && existingUser.AccountStatus != "Active" {
 			newUser.Role = "user"
 			listingsRef := client.NewRef("listings")
 			results, err := listingsRef.OrderByKey().GetOrdered(ctx)
@@ -219,4 +221,17 @@ func isUsernameUnique(id string, userName string) bool {
 		}
 	}
 	return res
+}
+
+func GetUserById(userId string) models.User {
+	ctx, client, _ := InitialiseFirebaseApp()
+
+	ref := client.NewRef("users")
+	var user models.User
+	err := ref.Child(userId).Get(ctx, &user)
+	if err != nil {
+		log.Fatalln("Error getting user:", err)
+	}
+
+	return user
 }
